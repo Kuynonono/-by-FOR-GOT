@@ -1,0 +1,57 @@
+
+local player = game.Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BallService = ReplicatedStorage.Packages.Knit.Services.BallService.RE
+
+local isShootingEnabled = false  -- ตัวแปรสำหรับเปิด/ปิดการยิง
+
+-- สร้าง UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 200, 0, 50)  -- ขนาดปุ่ม
+toggleButton.Position = UDim2.new(0, 20, 0.8, -25)  -- ย้ายตำแหน่งไปทางซ้าย
+toggleButton.Text = "Shooting: OFF"
+toggleButton.Parent = screenGui
+
+-- ฟังก์ชันยิงบอล
+local function shootBall()
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- ใช้ LookVector ของตัวละครเพื่อให้บอลพุ่งไปข้างหน้า
+        local direction = character.HumanoidRootPart.CFrame.LookVector
+        direction = Vector3.new(direction.X, 0, direction.Z).unit  -- ตัดแกน Y ออกเพื่อให้พุ่งตรง
+
+        -- ความแรงและทิศทางการยิง
+        local args = {
+            [1] = 300,  -- ความเร็วของลูกบอล
+            [4] = direction  -- ทิศทางการยิง
+        }
+        
+        BallService.Shoot:FireServer(unpack(args))  -- ส่งคำสั่งไปที่เซิร์ฟเวอร์
+    end
+end
+
+-- ฟังก์ชัน Toggle การยิง
+local function toggleShooting()
+    isShootingEnabled = not isShootingEnabled  -- สลับสถานะ
+    toggleButton.Text = isShootingEnabled and "Shooting: ON" or "Shooting: OFF"
+end
+
+-- เมื่อกดปุ่มเพื่อ Toggle การยิง
+toggleButton.MouseButton1Click:Connect(toggleShooting)
+
+-- เมื่อกดปุ่มใน UI เพื่อยิง
+local shootButton = Instance.new("TextButton")
+shootButton.Size = UDim2.new(0, 200, 0, 50)  -- ขนาดปุ่ม
+shootButton.Position = UDim2.new(0, 20, 0.9, -25)  -- ย้ายตำแหน่งไปทางซ้าย
+shootButton.Text = "Shoot Ball"
+shootButton.Parent = screenGui
+
+-- เมื่อกดปุ่ม Shoot Ball
+shootButton.MouseButton1Click:Connect(function()
+    if isShootingEnabled then
+        shootBall()  -- เรียกฟังก์ชันยิงบอลเมื่อคลิกปุ่ม
+    end
+end)
