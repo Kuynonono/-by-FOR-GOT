@@ -1,0 +1,29 @@
+-- Container สำหรับเก็บปุ่มเมนูหลักทั้งหมด
+local menuButtonContainer = Instance.new("Frame", innerFrame)
+menuButtonContainer.Size = UDim2.new(0, 160, 1, -60)
+menuButtonContainer.Position = UDim2.new(0, 10, 0, 50)
+menuButtonContainer.BackgroundTransparency = 1
+
+-- Layout สำหรับจัดเรียงปุ่มเมนู
+local menuListLayout = Instance.new("UIListLayout", menuButtonContainer)
+menuListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+menuListLayout.Padding = UDim.new(0, 10)
+
+-- ฟังก์ชันเพิ่มปุ่มเมนูหลักใหม่
+local function createMenuButton(text, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 18
+    btn.Parent = menuButtonContainer
+
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(0, 6)
+
+    btn.MouseButton1Click:Connect(callback)
+
+    return btn
+end
