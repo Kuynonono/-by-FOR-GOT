@@ -1,0 +1,162 @@
+
+
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- สร้าง ScreenGui ถ้ายังมีแล้วจะใช้เลย
+local screenGui = playerGui:FindFirstChild("SplitLayoutGUI") or Instance.new("ScreenGui", playerGui)
+screenGui.Name = "SplitLayoutGUI"
+screenGui.ResetOnSpawn = false
+
+-- Main Frame
+local mainFrame = screenGui:FindFirstChild("MainFrame") or Instance.new("Frame", screenGui)
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 500, 0, 460)
+mainFrame.Position = UDim2.new(0.5, -250, 0.5, -230)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+mainFrame.BackgroundTransparency = 0.2
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+
+-- Title Text
+local titleLabel = Instance.new("TextLabel", mainFrame)
+titleLabel.Size = UDim2.new(0, 200, 0, 20)
+titleLabel.Position = UDim2.new(0, 10, 0, 10)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Grow a garden made by FOR GOT"
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.TextSize = 14
+titleLabel.Font = Enum.Font.Gotham
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- เส้นกั้น
+local TopBarHeight = 40
+local VerticalLineX = 120
+
+local topLine = Instance.new("Frame", mainFrame)
+topLine.Size = UDim2.new(1, 0, 0, 2)
+topLine.Position = UDim2.new(0, 0, 0, TopBarHeight)
+topLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+topLine.BackgroundTransparency = 0.85
+Instance.new("UICorner", topLine).CornerRadius = UDim.new(0, 1)
+
+local verticalLine = Instance.new("Frame", mainFrame)
+verticalLine.Size = UDim2.new(0, 2, 0, 460 - TopBarHeight)
+verticalLine.Position = UDim2.new(0, VerticalLineX, 0, TopBarHeight)
+verticalLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+verticalLine.BackgroundTransparency = 0.85
+Instance.new("UICorner", verticalLine).CornerRadius = UDim.new(0, 1)
+
+-- ปุ่มปิด
+local closeButton = Instance.new("ImageButton", mainFrame)
+closeButton.Size = UDim2.new(0, 24, 0, 24)
+closeButton.Position = UDim2.new(1, -28, 0, 4)
+closeButton.BackgroundTransparency = 1
+closeButton.Image = "rbxassetid://6031094678"
+closeButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
+-- ปุ่มขยาย
+local expanded = false
+local expandButton = Instance.new("ImageButton", mainFrame)
+expandButton.Size = UDim2.new(0, 24, 0, 24)
+expandButton.Position = UDim2.new(1, -60, 0, 4)
+expandButton.BackgroundTransparency = 1
+expandButton.Image = "rbxassetid://105373926156113"
+
+-- ปุ่มย่อ
+local minimized = false
+local minimizeButton = Instance.new("ImageButton", mainFrame)
+minimizeButton.Size = UDim2.new(0, 24, 0, 24)
+minimizeButton.Position = UDim2.new(1, -92, 0, 4)
+minimizeButton.BackgroundTransparency = 1
+minimizeButton.Image = "rbxassetid://86236305730326"
+
+-- ขนาด GUI
+local smallSize = UDim2.new(0, 500, 0, 460)
+local largeSize = UDim2.new(0, 600, 0, 460)
+local minimizedSize = UDim2.new(0, 500, 0, 40)
+
+-- ปุ่มขยาย: toggle ขนาด
+expandButton.MouseButton1Click:Connect(function()
+    if minimized then return end
+    if expanded then
+        mainFrame.Size = smallSize
+        expandButton.Image = "rbxassetid://105373926156113"
+        expanded = false
+    else
+        mainFrame.Size = largeSize
+        expandButton.Image = "rbxassetid://105373926156113"
+        expanded = true
+    end
+end)
+
+-- ปุ่มย่อ: toggle ย่อ GUI
+minimizeButton.MouseButton1Click:Connect(function()
+    if expanded then
+        mainFrame.Size = smallSize
+        expanded = false
+    end
+    if minimized then
+        mainFrame.Size = smallSize
+        verticalLine.Visible = true
+        minimized = false
+    else
+        mainFrame.Size = minimizedSize
+        verticalLine.Visible = false
+        minimized = true
+    end
+end)
+
+-- ปุ่ม toggle ซ้ายจอ
+local toggleButton = screenGui:FindFirstChild("ToggleButton")
+if not toggleButton then
+    toggleButton = Instance.new("ImageButton", screenGui)
+    toggleButton.Name = "ToggleButton"
+    toggleButton.Size = UDim2.new(0, 56, 0, 56)
+    toggleButton.Position = UDim2.new(0, 10, 0.5, -28)
+    toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    toggleButton.BackgroundTransparency = 0
+    toggleButton.Image = "rbxassetid://89670756748755"
+    toggleButton.BorderSizePixel = 0
+
+    Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
+
+    -- ลากได้
+    local dragging = false
+    local dragInput, dragStart, startPos
+
+    toggleButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = toggleButton.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    toggleButton.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType
+.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            toggleButton.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    toggleButton.MouseButton1Click:Connect(function()
+        mainFrame.Visible = not mainFrame.Visible
+    end)
+end
